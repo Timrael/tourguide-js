@@ -1,12 +1,12 @@
-import {TourGuideClient} from "../Tour";
-import {computeDots, dotsWrapperHtmlString} from "./dots";
-import {arrow, autoPlacement, computePosition as fui_computePosition, offset, shift} from "@floating-ui/dom";
-import type {Placement, MiddlewareData} from "@floating-ui/dom";
+import type { MiddlewareData, Placement } from "@floating-ui/dom";
+import { computePosition as fui_computePosition } from "@floating-ui/dom";
+import { TourGuideClient } from "../Tour";
+import { computeDots, dotsWrapperHtmlString } from "./dots";
 
 /**
  * createTourGuideDialog
  */
-async function createTourGuideDialog(this : TourGuideClient){
+async function createTourGuideDialog(this: TourGuideClient) {
     // Create base tour dialog element
     this.dialog = document.createElement('div')
     this.dialog.classList.add('tg-dialog')
@@ -22,19 +22,19 @@ async function createTourGuideDialog(this : TourGuideClient){
  * renderDialogHtml
  * @param tgInstance
  */
-async function renderDialogHtml(tgInstance : TourGuideClient){
+async function renderDialogHtml(tgInstance: TourGuideClient) {
 
     /** Update dialog options **/
-    if(tgInstance.options.dialogClass) tgInstance.dialog.classList.add(tgInstance.options.dialogClass)
-    if(tgInstance.options.dialogZ) tgInstance.dialog.style.zIndex = String(tgInstance.options.dialogZ)
+    if (tgInstance.options.dialogClass) tgInstance.dialog.classList.add(tgInstance.options.dialogClass)
+    if (tgInstance.options.dialogZ) tgInstance.dialog.style.zIndex = String(tgInstance.options.dialogZ)
     tgInstance.dialog.style.width = tgInstance.options.dialogWidth ? (tgInstance.options.dialogWidth + 'px') : 'auto'
-    if(tgInstance.options.dialogMaxWidth) tgInstance.dialog.style.maxWidth = tgInstance.options.dialogMaxWidth + 'px'
+    if (tgInstance.options.dialogMaxWidth) tgInstance.dialog.style.maxWidth = tgInstance.options.dialogMaxWidth + 'px'
 
     /** Create dialog HTML **/
     let htmlRes = ""
     htmlRes += `<div class='tg-dialog-header'>` // Open header
-        htmlRes += `<div class="tg-dialog-title" id="tg-dialog-title"><!-- JS rendered --></div>` // Title
-    if(tgInstance.options.closeButton){
+    htmlRes += `<div class="tg-dialog-title" id="tg-dialog-title"><!-- JS rendered --></div>` // Title
+    if (tgInstance.options.closeButton) {
         htmlRes += `<div class="tg-dialog-close-btn" id="tg-dialog-close-btn">`
         htmlRes += ` <svg width="12px" height="12px" id="Layer_1" version="1.1" viewBox="0 0 512 512" xml:space="preserve" xmlns="http://www.w3.org/2000/svg"><path d="M443.6,387.1L312.4,255.4l131.5-130c5.4-5.4,5.4-14.2,0-19.6l-37.4-37.6c-2.6-2.6-6.1-4-9.8-4c-3.7,0-7.2,1.5-9.8,4  L256,197.8L124.9,68.3c-2.6-2.6-6.1-4-9.8-4c-3.7,0-7.2,1.5-9.8,4L68,105.9c-5.4,5.4-5.4,14.2,0,19.6l131.5,130L68.4,387.1  c-2.6,2.6-4.1,6.1-4.1,9.8c0,3.7,1.4,7.2,4.1,9.8l37.4,37.6c2.7,2.7,6.2,4.1,9.8,4.1c3.5,0,7.1-1.3,9.8-4.1L256,313.1l130.7,131.1  c2.7,2.7,6.2,4.1,9.8,4.1c3.5,0,7.1-1.3,9.8-4.1l37.4-37.6c2.6-2.6,4.1-6.1,4.1-9.8C447.7,393.2,446.2,389.7,443.6,387.1z"/></svg>`
         htmlRes += `</div>` // Close button
@@ -46,42 +46,42 @@ async function renderDialogHtml(tgInstance : TourGuideClient){
     htmlRes += '</div>'
 
     htmlRes += `</div>` // end header
-    if(tgInstance.options.progressBar){
+    if (tgInstance.options.progressBar) {
         htmlRes += `<div class="tg-dialog-progress-bar"><span class="tg-bar" id="tg-dialog-progbar"></span></div>` // Progress bar
     }
     htmlRes += `<div class="tg-dialog-body" id="tg-dialog-body"><!-- JS rendered --></div>` // Body
     // Append dots if enabled for body as separate element
-    if(tgInstance.options.showStepDots && tgInstance.options.stepDotsPlacement === 'body') {
+    if (tgInstance.options.showStepDots && tgInstance.options.stepDotsPlacement === 'body') {
         const dotsWrapperHtml = dotsWrapperHtmlString()
-        if(dotsWrapperHtml) htmlRes += dotsWrapperHtml
+        if (dotsWrapperHtml) htmlRes += dotsWrapperHtml
     }
 
     htmlRes += `<div class="tg-dialog-footer">` // Start footer
 
-        // Append prev button if enabled
-        let prevBtnClass = "tg-dialog-btn"
-        let prevDisabled = "false"
-        if(tgInstance.activeStep === 0){
-            prevDisabled = "true"
-            prevBtnClass += " disabled"
-        }
-        if(tgInstance.options.showButtons && !tgInstance.options.hidePrev) htmlRes += `<button type="button" class="` + prevBtnClass + `" id="tg-dialog-prev-btn" disabled="` + prevDisabled + `">${tgInstance.options.prevLabel}</button>`
+    // Append prev button if enabled
+    let prevBtnClass = "tg-dialog-btn"
+    let prevDisabled = "false"
+    if (tgInstance.activeStep === 0) {
+        prevDisabled = "true"
+        prevBtnClass += " disabled"
+    }
+    if (tgInstance.options.showButtons && !tgInstance.options.hidePrev) htmlRes += `<button type="button" class="` + prevBtnClass + `" id="tg-dialog-prev-btn" disabled="` + prevDisabled + `">${tgInstance.options.prevLabel}</button>`
 
-        htmlRes += '<div class="tg-dialog-footer-sup">'
+    htmlRes += '<div class="tg-dialog-footer-sup">'
 
-            // Append dots if enabled for FOOTER
-            if(tgInstance.options.showStepDots && tgInstance.options.stepDotsPlacement === 'footer') {
-                const dotsWrapperHtml = dotsWrapperHtmlString()
-                if(dotsWrapperHtml) htmlRes += dotsWrapperHtml
-            }
+    // Append dots if enabled for FOOTER
+    if (tgInstance.options.showStepDots && tgInstance.options.stepDotsPlacement === 'footer') {
+        const dotsWrapperHtml = dotsWrapperHtmlString()
+        if (dotsWrapperHtml) htmlRes += dotsWrapperHtml
+    }
 
-            // Show step progress if enabled
-            if(tgInstance.options.showStepProgress) htmlRes += `<span class="tg-step-progress" id="tg-step-progress"><!-- JS rendered --></span>`
+    // Show step progress if enabled
+    if (tgInstance.options.showStepProgress) htmlRes += `<span class="tg-step-progress" id="tg-step-progress"><!-- JS rendered --></span>`
 
-        htmlRes += '</div>'
+    htmlRes += '</div>'
 
-        // Append next button if enabled
-        if(tgInstance.options.showButtons && !tgInstance.options.hideNext) htmlRes += `<button type="button" class="tg-dialog-btn" id="tg-dialog-next-btn">${tgInstance.options.nextLabel}</button>`
+    // Append next button if enabled
+    if (tgInstance.options.showButtons && !tgInstance.options.hideNext) htmlRes += `<button type="button" class="tg-dialog-btn" id="tg-dialog-next-btn">${tgInstance.options.nextLabel}</button>`
 
     htmlRes += `</div>` // End footer
 
@@ -94,7 +94,7 @@ async function renderDialogHtml(tgInstance : TourGuideClient){
  * updateDialogHtml
  * @param tgInstance
  */
-function updateDialogHtml(tgInstance : TourGuideClient){
+function updateDialogHtml(tgInstance: TourGuideClient) {
     return new Promise((resolve, reject) => {
 
         // Check step data
@@ -108,7 +108,7 @@ function updateDialogHtml(tgInstance : TourGuideClient){
         // Body
         const tgBody = document.getElementById('tg-dialog-body');
         if (tgBody && stepData) {
-            if (typeof stepData.content === "string"){
+            if (typeof stepData.content === "string") {
                 tgBody.innerHTML = stepData.content ? stepData.content : ''
             } else {
                 tgBody.innerHTML = ""
@@ -118,11 +118,11 @@ function updateDialogHtml(tgInstance : TourGuideClient){
 
         // Dots - use computeDots()
         const tgDots = document.getElementById('tg-dialog-dots')
-        if(tgDots && tgInstance.options.showStepDots && computeDots(tgInstance)) tgDots.innerHTML = computeDots(tgInstance)
+        if (tgDots && tgInstance.options.showStepDots && computeDots(tgInstance)) tgDots.innerHTML = computeDots(tgInstance)
 
         // Back button
         const backBtn = document.getElementById('tg-dialog-prev-btn')
-        if(backBtn) {
+        if (backBtn) {
             if (tgInstance.activeStep === 0) {
                 backBtn.classList.add('disabled')
                 backBtn.setAttribute("disabled", 'true');
@@ -134,16 +134,16 @@ function updateDialogHtml(tgInstance : TourGuideClient){
 
         // Next/Finish button
         const nextBtn = document.getElementById('tg-dialog-next-btn')
-        if(nextBtn) nextBtn.innerHTML = ((tgInstance.activeStep + 1) >= tgInstance.tourSteps.length ? tgInstance.options.finishLabel : tgInstance.options.nextLabel) as string
+        if (nextBtn) nextBtn.innerHTML = ((tgInstance.activeStep + 1) >= tgInstance.tourSteps.length ? tgInstance.options.finishLabel : tgInstance.options.nextLabel) as string
 
         // Step progress
         const tgProgress = document.getElementById('tg-step-progress')
-        if(tgProgress) tgProgress.innerHTML = ((tgInstance.activeStep + 1) + '/' + (tgInstance.tourSteps).length)
+        if (tgProgress) tgProgress.innerHTML = ((tgInstance.activeStep + 1) + '/' + (tgInstance.tourSteps).length)
 
         // Progress bar
         const tgProgBar = document.getElementById('tg-dialog-progbar')
-        if(tgProgBar) {
-            if(tgInstance.options.progressBar) tgProgBar.style.backgroundColor = tgInstance.options.progressBar
+        if (tgProgBar) {
+            if (tgInstance.options.progressBar) tgProgBar.style.backgroundColor = tgInstance.options.progressBar
             tgProgBar.style.width = (((tgInstance.activeStep + 1) / tgInstance.tourSteps.length) * 100) + '%'
         }
 
@@ -155,7 +155,7 @@ function updateDialogHtml(tgInstance : TourGuideClient){
  * computeDialogPosition
  * @param tgInstance
  */
-function computeDialogPosition(tgInstance : TourGuideClient) {
+function computeDialogPosition(tgInstance: TourGuideClient) {
     return new Promise(async (resolve) => {
         const arrowElement: HTMLElement | null = document.querySelector('#tg-arrow');
 
@@ -173,7 +173,7 @@ function computeDialogPosition(tgInstance : TourGuideClient) {
             // Add fixed class
             tgInstance.dialog.classList.add('tg-dialog-fixed')
             // hide arrow
-            if(arrowElement) arrowElement.style.display = 'none'
+            if (arrowElement) arrowElement.style.display = 'none'
             return resolve(true)
         }
 
@@ -182,24 +182,12 @@ function computeDialogPosition(tgInstance : TourGuideClient) {
         // Remove fixed class
         tgInstance.dialog.classList.remove('tg-dialog-fixed')
         // Display arrow
-        if(arrowElement) arrowElement.style.display = 'inline-block'
+        if (arrowElement) arrowElement.style.display = 'inline-block'
 
         // Apply floating-ui positioning
         fui_computePosition(targetElem, tgInstance.dialog, {
             placement: tgInstance.options.dialogPlacement as Placement,
-            middleware: [
-                autoPlacement({
-                    autoAlignment: true,
-                    padding: 5
-                }),
-                shift({
-                    crossAxis: tgInstance.options.allowDialogOverlap,
-                    padding: 15
-                }),
-                arrow({element: arrowElement as HTMLElement}),
-                offset(20)
-            ],
-        }).then(({x, y, placement, middlewareData}) => {
+        }).then(({ x, y, placement, middlewareData }) => {
 
             // apply positioning
             Object.assign(tgInstance.dialog.style, {
@@ -208,7 +196,7 @@ function computeDialogPosition(tgInstance : TourGuideClient) {
             });
 
             // Arrow data
-            if(middlewareData.arrow && arrowElement) {
+            if (middlewareData.arrow && arrowElement) {
                 Object.assign(arrowElement.style, arrowStyles(middlewareData.arrow, placement, tgInstance.dialog))
                 // const arrowX = middlewareData.arrow.x
                 // const arrowY = middlewareData.arrow.y
@@ -239,7 +227,7 @@ function computeDialogPosition(tgInstance : TourGuideClient) {
  * @param dialog
  * @private
  */
-function arrowStyles(arrowMiddlewareData: MiddlewareData["arrow"], placement: Placement, dialog: TourGuideClient["dialog"]) : object {
+function arrowStyles(arrowMiddlewareData: MiddlewareData["arrow"], placement: Placement, dialog: TourGuideClient["dialog"]): object {
     const arrowX = arrowMiddlewareData?.x || 0;
     const arrowY = arrowMiddlewareData?.y || 0;
     const arrowSize = 10;
@@ -254,7 +242,7 @@ function arrowStyles(arrowMiddlewareData: MiddlewareData["arrow"], placement: Pl
     const maxWidth = dialog.clientWidth - arrowSize;
     const maxHeight = dialog.clientHeight - arrowSize;
 
-    const isAtMaxHeight = Math.abs(arrowY - maxHeight) <= arrowSize ;
+    const isAtMaxHeight = Math.abs(arrowY - maxHeight) <= arrowSize;
     const isAtMaxWidth = Math.abs(arrowX - maxWidth) <= arrowSize;
     const isAtMinHeight = Math.abs(arrowY) <= arrowSize;
     const isAtMinWidth = Math.abs(arrowX) <= arrowSize;
@@ -272,4 +260,4 @@ function arrowStyles(arrowMiddlewareData: MiddlewareData["arrow"], placement: Pl
     };
 }
 
-export {createTourGuideDialog, renderDialogHtml, updateDialogHtml, computeDialogPosition}
+export { computeDialogPosition, createTourGuideDialog, renderDialogHtml, updateDialogHtml };
